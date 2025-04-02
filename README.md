@@ -22,3 +22,13 @@ export DB_URI=postgres://user:password@localhost:5433/database?sslmode=disable
 ```
 go run main.go
 ```
+
+5. Stop Aplikasi
+```
+docker stop postgresql
+```
+
+6. Jalankan ulang aplikasi
+```
+docker start postgresql
+```

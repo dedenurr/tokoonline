@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dedenurr/tokoonline/handler"
+	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib" // Import pgx driver
 )
 
@@ -30,9 +32,22 @@ func main() {
 		os.Exit(1)
 	}
 
+	r := gin.Default()
+
+	r.GET("/api/v1/products", handler.ListProducts(db))
+	r.GET("/api/v1/products/:id", handler.GetProduct)
+	r.POST("/api/v1/checkout")
+
+	r.POST("/api/v1/orders/:id/confirm")
+	r.GET("/api/v1/orders/:id")
+
+	r.POST("/admini/v1/products")
+	r.PUT("/admin/v1/products/:id")
+	r.DELETE("/admin/v1/products/:id")
+
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: nil,
+		Handler: r,
 	}
 
 	// Server Handler
