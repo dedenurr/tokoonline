@@ -115,6 +115,19 @@ func UpdateProduct(db *sql.DB) gin.HandlerFunc {
 
 func DeleteProduct(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// ambil id dari parameter
+		id := c.Param("id")
 
+		// hapus produk dari database
+		if err := model.DeleteProduct(db, id); err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				c.JSON(400, gin.H{"error": "Product Tidak Ditermukan"})
+				return
+			}
+			c.JSON(500, gin.H{"error": "Terjadi Kesalahan pada server"})
+			return
+		}
+
+		c.JSON(200, gin.H{"message": "Product Berhasil Dihapus"})
 	}
 }

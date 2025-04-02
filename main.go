@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/dedenurr/tokoonline/handler"
+	"github.com/dedenurr/tokoonline/middleware"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib" // Import pgx driver
 )
@@ -41,9 +42,9 @@ func main() {
 	r.POST("/api/v1/orders/:id/confirm")
 	r.GET("/api/v1/orders/:id")
 
-	r.POST("/admin/v1/products", handler.CreateProduct(db))
-	r.PUT("/admin/v1/products/:id", handler.UpdateProduct(db))
-	r.DELETE("/admin/v1/products/:id", handler.DeleteProduct(db))
+	r.POST("/admin/v1/products", middleware.AdminOnly(), handler.CreateProduct(db))
+	r.PUT("/admin/v1/products/:id", middleware.AdminOnly(), handler.UpdateProduct(db))
+	r.DELETE("/admin/v1/products/:id", middleware.AdminOnly(), handler.DeleteProduct(db))
 
 	server := &http.Server{
 		Addr:    ":8080",

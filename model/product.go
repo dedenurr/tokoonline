@@ -6,7 +6,7 @@ import (
 )
 
 type Product struct {
-	ID        string `json:"id",binding:"len=0"`
+	ID        string `json:"id" binding:"len=0"`
 	Name      string `json:"name"`
 	Price     int64  `json:"price"`
 	IsDeleted *bool  `json:"is_deleted,omitempty"`
@@ -83,6 +83,20 @@ func UpdateProduct(db *sql.DB, product Product) error {
 
 	query := "UPDATE product set  name=$1, nami=$2, where id = $3)"
 	_, err := db.Exec(query, product.ID, product.Name, product.Price)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteProduct(db *sql.DB, id string) error {
+	if db == nil {
+		return ErrDBNil
+	}
+
+	query := "UPDATE products SET is_deleted = true WHERE id = $1"
+	_, err := db.Exec(query, id)
 	if err != nil {
 		return err
 	}

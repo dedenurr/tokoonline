@@ -16,6 +16,7 @@ golang.org/x/crypto
 3. Export Environment variable yang dibutuhkan
 ```
 export DB_URI=postgres://user:password@localhost:5433/database?sslmode=disable
+export ADMIN_KEY=secret
 ```
 
 4. Jalankan Program
