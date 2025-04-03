@@ -37,10 +37,10 @@ func main() {
 
 	r.GET("/api/v1/products", handler.ListProducts(db))
 	r.GET("/api/v1/products/:id", handler.GetProduct(db))
-	r.POST("/api/v1/checkout")
+	r.POST("/api/v1/checkout", handler.CheckoutOrder(db))
 
-	r.POST("/api/v1/orders/:id/confirm")
-	r.GET("/api/v1/orders/:id")
+	r.POST("/api/v1/orders/:id/confirm", handler.ConfirmOrder(db))
+	r.GET("/api/v1/orders/:id", handler.GetOrder(db))
 
 	r.POST("/admin/v1/products", middleware.AdminOnly(), handler.CreateProduct(db))
 	r.PUT("/admin/v1/products/:id", middleware.AdminOnly(), handler.UpdateProduct(db))
