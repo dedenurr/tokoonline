@@ -25,8 +25,8 @@ type Order struct {
 	GrandTotal        int64      `json:"grandTotal"`
 	Passcode          *string    `json:"passcode,omitempty"`
 	PaidAt            *time.Time `json:"paidAt,omitempty"`
-	PaidBank          string     `json:"paidBank,omitempty"`
-	PaidAccountNumber string     `json:"paidAccountNumber,omitempty"`
+	PaidBank          *string    `json:"paidBank,omitempty"`
+	PaidAccountNumber *string    `json:"paidAccountNumber,omitempty"`
 }
 
 type OrderDetail struct {
@@ -43,6 +43,13 @@ type OrderWithDetail struct {
 	Details []OrderDetail `json:"orderDetail"`
 }
 
+type Confirm struct {
+	Amount        int64  `json:"amount" binding:"required"`
+	Bank          string `json:"bank" binding:"required"`
+	AccountNumber string `json:"accountNumber" binding:"required"`
+	Passcode      string `json:"passcode" binding:"required"`
+}
+
 func CreateOrder(db *sql.DB, order Order, details []OrderDetail) error {
 	if db == nil {
 		return ErrDBNil
@@ -54,8 +61,7 @@ func CreateOrder(db *sql.DB, order Order, details []OrderDetail) error {
 	}
 
 	queryOrder := `INSERT INTO orders (id, email, address, passcode, grand_total) VALUES ($1, $2, $3, $4, $5);`
-	_, err = tx.Exec(queryOrder, order.ID, order.Email, order.Address,
-		order.GrandTotal, order.Passcode)
+	_, err = tx.Exec(queryOrder, order.ID, order.Email, order.Address, order.Passcode, order.GrandTotal)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -81,6 +87,36 @@ func CreateOrder(db *sql.DB, order Order, details []OrderDetail) error {
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()
+		return err
+	}
+
+	return nil
+}
+
+func SelectOrderByID(db *sql.DB, id string) (Order, error) {
+	if db == nil {
+		return Order{}, ErrDBNil
+	}
+
+	query := `SELECT id, email, address, passcode, grand_total, paid_at, paid_bank, paid_account FROM orders WHERE id = $1;`
+	row := db.QueryRow(query, id)
+
+	var order Order
+	err := row.Scan(&order.ID, &order.Email, &order.Address, &order.Passcode, &order.GrandTotal, &order.PaidAt, &order.PaidBank, &order.PaidAccountNumber)
+	if err != nil {
+		return Order{}, err
+	}
+
+	return order, nil
+}
+
+func UpdateOrderByID(db *sql.DB, id string, confirm Confirm, paidAt time.Time) error {
+	if db == nil {
+		return ErrDBNil
+	}
+
+	query := `UPDATE orders SET paid_at=$1, paid_bank=$2, paid_account=$3 WHERE id=$4`
+	if _, err := db.Exec(query, paidAt, confirm.Bank, confirm.AccountNumber, id); err != nil {
 		return err
 	}
 

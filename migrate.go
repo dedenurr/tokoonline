@@ -28,7 +28,7 @@ func migrate(db *sql.DB) (sql.Result, error) {
 		passcode VARCHAR,
 		paid_at TIMESTAMP,
 		paid_bank VARCHAR(255),
-		paid_account_number VARCHAR(255),
+		paid_account VARCHAR(255),
 		grand_total BIGINT NOT NULL
 	);
 
